@@ -49,3 +49,4 @@ Proceeding with Storyteller.
 
 | Timestamp (UTC) | Queries | Result |
 |---|---|---|
+| 2026-09-11T17:37:41Z | same 8 product/alias queries as above | No exact or alias match; only the adjacent library/player templates listed above. **Gap still clean; published immediately after this check.** |

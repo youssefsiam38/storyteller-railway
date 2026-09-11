@@ -9,7 +9,9 @@ immersion reading. This repository is a **community-maintained Railway template*
 project**.
 
 <!-- DEPLOY_BUTTON_START -->
-_Deploy button will appear here after the template is published._
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/storyteller)
+
+Template page: https://railway.com/deploy/storyteller
 <!-- DEPLOY_BUTTON_END -->
 
 ## What you get
@@ -24,7 +26,7 @@ _Deploy button will appear here after the template is published._
 | whisper.cpp (bundled, CPU) + model | v1.8.2, `tiny.en` |
 | Readium | 0.6.5 |
 | Node.js / base | 24.8.0 / Ubuntu 24.04 |
-| Wrapper | see [releases](https://github.com/youssefsiam38/storyteller-railway/releases) |
+| Wrapper | v1.0.1 — `ghcr.io/youssefsiam38/storyteller-railway:1.0.1`, index digest `sha256:762381d3cc62ab64006c8acaf470be793e2d5589b9f2e672a29d6b7ccebaf0b0` ([releases](https://github.com/youssefsiam38/storyteller-railway/releases)) |
 
 What the wrapper adds and why: [ARCHITECTURE.md](ARCHITECTURE.md). In one sentence: Storyteller
 normally shows an unauthenticated "create admin account" page on first run; the wrapper creates
@@ -57,8 +59,8 @@ the administrator from generated variables **before** the service is reachable.
 | `STORYTELLER_ADMIN_PASSWORD` | yes | generated `${{secret(24)}}` | Administrator password created on first boot (min 12 chars). Reveal it in the dashboard to log in the first time, then change it in the app. |
 | `STORYTELLER_ADMIN_EMAIL` | **yes, you** | — | Administrator email (account record; used for password reset and OAuth account linking). |
 | `STORYTELLER_ADMIN_NAME` | no | `Administrator` | Display name. |
-| `STORYTELLER_WEB_URL` | no | `https://${{RAILWAY_PUBLIC_DOMAIN}}` | Seeds the "Web URL" setting on first boot only. Change the setting in the app afterwards (e.g. custom domain). |
-| `STORYTELLER_LIBRARY_NAME` | no | `My Library` | Seeds the library name on first boot only. |
+| `STORYTELLER_WEB_URL` | no | `https://${{RAILWAY_PUBLIC_DOMAIN}}` | Seeds the "Web URL" setting while it is empty (checked at every start; never overwrites a value you set). Change the setting in the app afterwards (e.g. custom domain). |
+| `STORYTELLER_LIBRARY_NAME` | no | `My Library` | Seeds the library name while it is empty. |
 | `PORT` | yes | `8001` | Listening port (Railway routes the domain to it). |
 | `STORYTELLER_LOG_LEVEL` | no | `info` | `error`, `warn`, `info`, `debug`, `trace`. |
 | `STORYTELLER_MAX_UPLOAD_CHUNK_SIZE` | no | upstream default `10` | Upload chunk size in MB. |

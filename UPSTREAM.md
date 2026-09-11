@@ -29,6 +29,13 @@ Facts checked against primary sources on 2026-09-11. Re-verify before every upgr
 | Checksums | Upstream publishes no separate checksum files; OCI digests above are the integrity anchor, read with `docker buildx imagetools inspect`. |
 | GPU variants | `amd64-cuda-*`, `amd64-rocm`, `amd64-vulkan` image repos exist upstream. Railway has no GPU runtime, so only the CPU image is used. |
 
+## Wrapper image releases
+
+| Wrapper tag | Index digest | Source commit |
+|---|---|---|
+| `ghcr.io/youssefsiam38/storyteller-railway:1.0.0` | `sha256:a9bb15629c59b878d4c9d97fca1db49416714136a958b72595e4496a4d3a4b73` | `e431c82ad5af675efb0b07cb2f01e6551b6b74f5` |
+| `ghcr.io/youssefsiam38/storyteller-railway:1.0.1` | `sha256:762381d3cc62ab64006c8acaf470be793e2d5589b9f2e672a29d6b7ccebaf0b0` | `cf190964d40acb31708f1b25e22e3580b114a9bc` |
+
 ## Runtime facts (verified by running the pinned image)
 
 | Item | Value |

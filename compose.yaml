@@ -1,0 +1,40 @@
+# Local test topology. Mirrors the single Railway service:
+#   storyteller -> public web app + API on PORT (8001), SQLite + library under /data (one volume)
+name: storyteller-railway-test
+
+services:
+  storyteller:
+    # Built from this repository. CI and the Railway template use the published GHCR image instead.
+    build:
+      context: .
+      args:
+        WRAPPER_VERSION: ${WRAPPER_VERSION:-0.0.0-local}
+        VCS_REF: ${VCS_REF:-local}
+    image: ${STORYTELLER_RAILWAY_IMAGE:-storyteller-railway:local}
+    restart: unless-stopped
+    environment:
+      PORT: '8001'
+      HOSTNAME: 0.0.0.0
+      STORYTELLER_SECRET_KEY: local-test-only-secret-key-not-for-production-use
+      STORYTELLER_ADMIN_USERNAME: admin
+      STORYTELLER_ADMIN_PASSWORD: local-test-only-admin-password
+      STORYTELLER_ADMIN_EMAIL: admin@example.invalid
+      STORYTELLER_ADMIN_NAME: Test Admin
+      STORYTELLER_WEB_URL: http://localhost:8001
+      STORYTELLER_LIBRARY_NAME: Test Library
+      STORYTELLER_LOG_LEVEL: info
+      STORYTELLER_SYNC_CHANGELOG: 'false'
+      APP_READY_TIMEOUT: ${APP_READY_TIMEOUT:-300}
+    ports:
+      - '127.0.0.1:8001:8001'
+    volumes:
+      - data:/data
+    # alignment is CPU/RAM heavy; cap locally so tests reflect a modest Railway service
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8g
+
+volumes:
+  data:

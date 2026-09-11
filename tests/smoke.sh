@@ -85,7 +85,7 @@ code=$(docker inspect --format '{{.State.ExitCode}}' "$(compose ps -a -q storyte
 [ "$dur" -lt 30 ] && pass "stopped in ${dur}s" || fail "stop took ${dur}s"
 case "$code" in 0|143) pass "exit status $code" ;; *) fail "unexpected exit status $code" ;; esac
 compose start storyteller; wait_for_code "$BASE_URL/api/health" 200 180 && pass "restarted" || die "did not restart"
-assert_contains "bootstrap skipped on restart" "existing database with users found; admin bootstrap skipped" "$(compose logs --no-color storyteller | tail -40)"
+assert_contains "bootstrap skipped on restart" "existing database with users found; admin bootstrap skipped" "$(compose logs --no-color storyteller)"
 
 section "essential child death ends the container"
 cid=$(compose ps -q storyteller); before=$(docker inspect --format '{{.RestartCount}}' "$cid")

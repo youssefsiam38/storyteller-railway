@@ -1,7 +1,8 @@
 // Creates the first administrator from environment variables, replicating what Storyteller's
-// /init page does (applications/web/src/database/users.ts createAdminUser), and optionally seeds
-// libraryName / webUrl. Runs as the storyteller user against the SQLite database while the app is
-// listening on loopback only. Idempotent: does nothing when a user already exists.
+// /init page does (applications/web/src/database/users.ts createAdminUser), and seeds
+// libraryName / webUrl when they are still empty. Runs as the storyteller user against the SQLite
+// database (first boot: while the app listens on loopback; later boots with --settings-only:
+// before the app starts). Idempotent: never overwrites a value a user has set.
 // Never prints variable values.
 import { DatabaseSync } from "node:sqlite"
 import { randomUUID } from "node:crypto"
@@ -20,6 +21,17 @@ const name = (process.env.STORYTELLER_ADMIN_NAME || "Administrator").trim()
 const webUrl = (process.env.STORYTELLER_WEB_URL || "").trim()
 const libraryName = (process.env.STORYTELLER_LIBRARY_NAME || "").trim()
 
+const settingsOnly = process.argv.includes("--settings-only")
+
+const db = new DatabaseSync(dbFile)
+db.exec("PRAGMA busy_timeout = 10000")
+
+if (settingsOnly) {
+  seedSettings()
+  db.close()
+  process.exit(0)
+}
+
 if (!username || !password || !email) fail("STORYTELLER_ADMIN_USERNAME, STORYTELLER_ADMIN_PASSWORD and STORYTELLER_ADMIN_EMAIL are required for admin bootstrap")
 if (password.length < 12) fail("STORYTELLER_ADMIN_PASSWORD must be at least 12 characters")
 if (!/^[^@\s]+@[^@\s]+$/.test(email)) fail("STORYTELLER_ADMIN_EMAIL is not a valid email address")
@@ -28,8 +40,6 @@ if (!/^[^@\s]+@[^@\s]+$/.test(email)) fail("STORYTELLER_ADMIN_EMAIL is not a val
 const require = createRequire(import.meta.url)
 const argon2 = require(process.env.STORYTELLER_ARGON2_PATH || "/app/.next/standalone/node_modules/argon2")
 
-const db = new DatabaseSync(dbFile)
-db.exec("PRAGMA busy_timeout = 10000")
 const userCount = db.prepare("SELECT count(*) AS n FROM user").get().n
 const permCount = db.prepare("SELECT count(*) AS n FROM user_permission").get().n
 
@@ -56,14 +66,28 @@ if (userCount > 0) {
   log(`admin bootstrap complete: created administrator "${username}" (password length ${password.length})`)
 }
 
-// Seed settings only when they are still empty so later UI edits are never overwritten.
-const seed = (key, value) => {
-  const row = db.prepare("SELECT value FROM settings WHERE name = ?").get(key)
-  if (!row) { log(`setting ${key}: row missing in this version, not seeded`); return }
-  if (row.value !== '""' && row.value !== "null" && row.value !== "") { log(`setting ${key}: already set, left unchanged`); return }
-  db.prepare("UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE name = ?").run(JSON.stringify(value), key)
-  log(`setting ${key}: seeded`)
-}
-if (webUrl) seed("webUrl", webUrl)
-if (libraryName) seed("libraryName", libraryName)
+seedSettings()
 db.close()
+
+// Seed settings only while they are still empty (or a host-less URL left by an earlier boot before
+// the public domain existed), so values people set in the UI are never overwritten.
+function hasHost(u) { try { return Boolean(new URL(u).hostname) } catch { return false } }
+function isEmptySetting(v) {
+  if (v === undefined || v === null || v === "" || v === '""' || v === "null") return true
+  try { const parsed = JSON.parse(v); return parsed === "" || parsed === null } catch { return false }
+}
+function seedSettings() {
+  const seed = (key, value, ok = () => true) => {
+    let row
+    try { row = db.prepare("SELECT value FROM settings WHERE name = ?").get(key) } catch { row = undefined }
+    if (!row) { log(`setting ${key}: row missing (schema not ready or older version), not seeded`); return }
+    const current = (() => { try { return JSON.parse(row.value) } catch { return row.value } })()
+    const currentIsHostless = key === "webUrl" && typeof current === "string" && current !== "" && !hasHost(current)
+    if (!isEmptySetting(row.value) && !currentIsHostless) { log(`setting ${key}: already set, left unchanged`); return }
+    if (!ok(value)) { log(`setting ${key}: skipped (value has no host yet)`); return }
+    db.prepare("UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE name = ?").run(JSON.stringify(value), key)
+    log(`setting ${key}: seeded`)
+  }
+  if (webUrl) seed("webUrl", webUrl, hasHost)
+  if (libraryName) seed("libraryName", libraryName)
+}

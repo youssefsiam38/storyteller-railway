@@ -20,7 +20,7 @@ services:
       STORYTELLER_ADMIN_PASSWORD: local-test-only-admin-password
       STORYTELLER_ADMIN_EMAIL: admin@example.invalid
       STORYTELLER_ADMIN_NAME: Test Admin
-      STORYTELLER_WEB_URL: http://localhost:8001
+      STORYTELLER_WEB_URL: ${STORYTELLER_WEB_URL:-http://localhost:8001}
       STORYTELLER_LIBRARY_NAME: Test Library
       STORYTELLER_LOG_LEVEL: info
       STORYTELLER_SYNC_CHANGELOG: 'false'

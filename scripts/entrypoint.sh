@@ -83,6 +83,12 @@ elif [ "$bootstrap_mode" = 1 ]; then
   log "existing database with users found; admin bootstrap skipped"
 fi
 
+# Every boot: seed webUrl/libraryName if still empty (e.g. the public domain did not exist on the
+# first boot). Never overwrites a value that is already set. Runs before the app opens the database.
+if [ -f "$DB_FILE" ] && { [ -n "${STORYTELLER_WEB_URL:-}" ] || [ -n "${STORYTELLER_LIBRARY_NAME:-}" ]; }; then
+  gosu storyteller node --no-warnings "$BOOTSTRAP" --settings-only || log "warning: settings seed failed (continuing)"
+fi
+
 log "starting Storyteller on ${HOSTNAME:-0.0.0.0}:${PORT}"
 export HOSTNAME="${HOSTNAME:-0.0.0.0}"
 exec "$UPSTREAM_ENTRYPOINT" "$@"

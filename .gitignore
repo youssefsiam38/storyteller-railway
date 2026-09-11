@@ -21,3 +21,7 @@ node_modules/
 
 # Railway CLI link metadata
 .railway/
+
+# python bytecode from tests/static.sh
+__pycache__/
+*.pyc

@@ -9,8 +9,9 @@ import { randomUUID } from "node:crypto"
 import { createRequire } from "node:module"
 import path from "node:path"
 
-const log = (m) => process.stderr.write(`[storyteller-railway] ${m}\n`)
-const fail = (m) => { log(`FATAL: ${m}`); process.exit(1) }
+// stdout, not stderr: Railway shows anything on stderr as an error, and these are routine.
+const log = (m) => process.stdout.write(`[storyteller-railway] ${m}\n`)
+const fail = (m) => { process.stderr.write(`[storyteller-railway] FATAL: ${m}\n`); process.exit(1) }
 
 const dataDir = process.env.STORYTELLER_DB_DIR || process.env.STORYTELLER_DATA_DIR || "/data"
 const dbFile = path.join(dataDir, process.env.STORYTELLER_DB_FILENAME || "storyteller.db")

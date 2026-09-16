@@ -9,8 +9,10 @@
 # Result: the unauthenticated "create admin account" page is never reachable from the internet.
 set -u
 
-log()  { printf '[storyteller-railway] %s\n' "$*" >&2; }
-fail() { log "FATAL: $*"; exit 1; }
+# Railway colours a log line by the stream it arrived on, so routine start-up messages go to stdout
+# and only failures go to stderr; otherwise the whole first boot is shown to the deployer in red.
+log()  { printf '[storyteller-railway] %s\n' "$*"; }
+fail() { printf '[storyteller-railway] FATAL: %s\n' "$*" >&2; exit 1; }
 
 : "${PORT:=8001}"
 : "${STORYTELLER_DATA_DIR:=/data}"

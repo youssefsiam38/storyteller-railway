@@ -32,6 +32,15 @@ for f in .github/workflows/*.yml; do
   if grep -E 'uses: ' "$f" | grep -vqE '@[0-9a-f]{40}( |$)'; then fail "unpinned action in $f"; else pass "actions pinned by SHA in $f"; fi
 done
 
+section "log streams"
+# Railway colours a log line by the stream it arrived on: routine lines on stderr show as errors.
+if grep -q '^log()' scripts/entrypoint.sh && ! grep '^log()' scripts/entrypoint.sh | grep -q '>&2'; then
+  pass "routine logs go to stdout"
+else
+  fail "log() writes to stderr; Railway would show every start-up line as an error"
+fi
+if grep '^fail()' scripts/entrypoint.sh | grep -q '>&2'; then pass "failures go to stderr"; else fail "fail() does not write to stderr"; fi
+
 section "no tracked secrets"
 if git -C "$REPO_ROOT" rev-parse >/dev/null 2>&1; then
   hits=$(git -C "$REPO_ROOT" ls-files -z | xargs -0 grep -lE '(ghp_[A-Za-z0-9]{36}|gho_[A-Za-z0-9]{36}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]+)' 2>/dev/null || true)

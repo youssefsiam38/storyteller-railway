@@ -26,7 +26,7 @@ Template page: https://railway.com/deploy/storyteller
 | whisper.cpp (bundled, CPU) + model | v1.8.2, `tiny.en` |
 | Readium | 0.6.5 |
 | Node.js / base | 24.8.0 / Ubuntu 24.04 |
-| Wrapper | v1.0.1 — `ghcr.io/youssefsiam38/storyteller-railway:1.0.1`, index digest `sha256:762381d3cc62ab64006c8acaf470be793e2d5589b9f2e672a29d6b7ccebaf0b0` ([releases](https://github.com/youssefsiam38/storyteller-railway/releases)) |
+| Wrapper | v1.0.2 — `ghcr.io/youssefsiam38/storyteller-railway:1.0.2`, index digest `sha256:3577fcbea2b18cf6e2f2d379d9cac2f144a674009477bd6a9c685f0c45467042` ([releases](https://github.com/youssefsiam38/storyteller-railway/releases)) |
 
 What the wrapper adds and why: [ARCHITECTURE.md](ARCHITECTURE.md). In one sentence: Storyteller
 normally shows an unauthenticated "create admin account" page on first run; the wrapper creates
